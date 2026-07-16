@@ -1,0 +1,22 @@
+{
+  "name": "Word Match Studio V6 Classroom",
+  "version": "6.0.0",
+  "offline": true,
+  "entry": "index.html",
+  "platforms": [
+    "Windows Edge/Chrome",
+    "ClassIn embedded browser",
+    "Seewo interactive whiteboard",
+    "Android phone/tablet",
+    "iPhone/iPad"
+  ],
+  "features": [
+    "Classroom mode (F9)",
+    "Touch-optimized cards",
+    "Local SheetJS Excel import fallback",
+    "Responsive phone/tablet layout",
+    "Three offline themes",
+    "Smart card text and image fitting"
+  ],
+  "recommended": "Extract the full folder and open index.html"
+}

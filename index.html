@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a67e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="单词消消乐">
+<title>Word Match Studio V6.0</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body class="theme-simple">
+<div class="window-shell">
+  <aside class="sidebar">
+    <div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div>
+    <nav class="side-nav" aria-label="主导航">
+      <button class="nav-item active" type="button" title="首页"><span class="nav-icon">⌂</span><span>首页</span></button>
+      <button class="nav-item" id="wordbookBtn" type="button" title="单词本"><span class="nav-icon">A</span><span>单词本</span></button>
+      <button class="nav-item" id="statsBtn" type="button" title="学习统计"><span class="nav-icon">▥</span><span>统计</span></button>
+      <button class="nav-item" id="growthBtn" type="button" title="成长"><span class="nav-icon">♧</span><span>成长</span></button>
+      <button class="nav-item" id="soundBtn" type="button" title="设置"><span class="nav-icon">⚙</span><span>设置</span></button>
+    </nav>
+  </aside>
+
+  <div id="app" class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" id="logo">★</div>
+        <div>
+          <h1>Word Match Studio <span id="versionBadge">V6.0</span></h1>
+          <p>Game First · Classroom Ready</p>
+        </div>
+      </div>
+      <div class="head-actions"><button id="mobileStudyBtn" class="btn secondary mobile-only" type="button">学习单</button>
+        <button id="classroomBtn" class="btn secondary classroom-button" type="button" aria-pressed="false">课堂模式</button>
+        <button id="importBtn" class="btn secondary">导入词库</button>
+        <div class="teacher-display" title="教学与激励女声可在左侧设置中调整"><span>👩🏻</span><b>Emma</b></div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="field"><label>词库</label>
+        <select id="source">
+          <option value="default">默认词库</option>
+          <option value="wrong">错词强化</option>
+          <option value="custom" disabled>已导入词库</option>
+        </select>
+      </div>
+      <div class="field default-only" id="levelField"><label>年龄水平</label><select id="level"></select></div>
+      <div class="field" id="unitField" hidden><label>选择单元</label><select id="unitSelect"></select></div>
+      <div class="field mode-field"><label>配对模式</label>
+        <div class="segmented">
+          <button data-mode="image" class="active">英文 ↔ 图片</button>
+          <button data-mode="cn">英文 ↔ 中文</button>
+        </div>
+      </div>
+      <div class="field"><label>每局词数</label><select id="pairCount"><option>6</option><option selected>8</option><option>10</option><option>12</option></select></div>
+      <div class="field"><label>背景主题</label><select id="theme">
+      <option value="simple">简洁</option>
+      <option value="magic">魔法</option>
+      <option value="dream">梦幻</option>
+    </select></div>
+      <button id="newGameBtn" class="btn primary start-button">▶　开始新一局</button>
+    </section>
+
+    <main class="workspace">
+      <section class="game-panel">
+        <div class="game-head">
+          <div class="pack-name"><span>当前词库</span><b id="currentPack">默认词库</b></div>
+          <div class="mini"><span>本局 <b id="done">0/0</b></span><span>连击 <b id="combo">0</b></span></div>
+          <div class="progress"><div id="progressBar"></div></div>
+        </div>
+        <div class="coverage-line" id="coverageLine">
+          <span id="coverageText">单元覆盖：0 / 0</span>
+          <div class="coverage-progress"><div id="coverageBar"></div></div>
+          <button id="resetUnitBtn" class="mini-btn" hidden>重新练习本单元</button>
+        </div>
+        <div id="board"></div>
+      </section>
+
+      <aside class="study-panel">
+        <div class="study-title"><div><h2>本轮学习单</h2><small id="unitSummary">辅助查看</small></div><div class="study-title-actions"><span id="roundCount">8</span><button id="closeStudyBtn" class="study-close mobile-only" type="button">×</button></div></div>
+        <div id="studyList"></div>
+        <div class="tip">按下英文卡片立即播放发音。导入 Excel 后自动切换为英文—中文模式。</div>
+      </aside>
+    </main>
+
+    <footer class="metrics">
+      <div><span class="metric-icon">▤</span><b id="score">0</b><small>得分</small></div>
+      <div><span class="metric-icon">◎</span><b id="time">0</b><small>秒</small></div>
+      <div><span class="metric-icon">↗</span><b id="moves">0</b><small>尝试</small></div>
+      <div><span class="metric-icon">◉</span><b id="accuracy">100%</b><small>正确率</small></div>
+      <div><span class="metric-icon">♨</span><b id="best">0</b><small>最高分</small></div>
+      <div><span class="metric-icon">□</span><b id="todayCount">0</b><small>今日词数</small></div>
+    </footer>
+  </div>
+</div>
+
+<input id="excelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+
+<div class="overlay" id="soundDialog"><div class="dialog small">
+<div class="dialog-header"><div><h2>声音设置</h2><p>分别设置教学与激励女声</p></div><button class="dialog-close" data-close="soundDialog">×</button></div>
+<label class="check"><input type="checkbox" id="wordSound" checked> 单词发音</label>
+<div class="voice-setting">
+  <label for="voiceStrategy">发音策略</label>
+  <select id="voiceStrategy">
+    <option value="auto">自动选择最佳（推荐）</option>
+    <option value="local">仅使用离线语音</option>
+    <option value="natural">优先自然语音（可能联网）</option>
+  </select>
+  <label for="voiceSelect">教学女声（单词发音）</label>
+  <select id="voiceSelect"><option value="">正在读取系统语音…</option></select>
+  <label for="praiseVoiceSelect">激励女声（成功与纠错）</label>
+  <select id="praiseVoiceSelect"><option value="">正在选择另一位女老师…</option></select>
+  <div class="voice-row">
+    <label for="voiceRate">语速 <span id="voiceRateText">0.90</span></label>
+    <input id="voiceRate" type="range" min="0.70" max="1.15" step="0.05" value="0.90">
+  </div>
+  <div class="voice-test-grid">
+    <button id="testVoiceBtn" class="btn secondary" type="button">试听教学女声</button>
+    <button id="testPraiseVoiceBtn" class="btn secondary" type="button">试听激励女声</button>
+    <button id="autoVoiceBtn" class="btn quiet" type="button">重新自动选择</button>
+    <button id="testAllVoicesBtn" class="btn quiet" type="button">试听前三名</button>
+  </div>
+  <div id="voiceStatus" class="voice-status">正在检测 Windows 与浏览器可用的英文语音。</div>
+  <div class="voice-legend">● 本地离线　☁ 可能需要联网</div>
+</div>
+<label class="check"><input type="checkbox" id="successSound" checked> 成长鼓励与完成祝贺</label>
+<label class="check"><input type="checkbox" id="wrongSound" checked> 温和纠错提示</label>
+<div class="actions"><button class="btn primary" data-close="soundDialog">完成</button></div>
+</div></div>
+
+<div class="overlay" id="statsDialog"><div class="dialog">
+<div class="dialog-header"><div><h2>学习统计</h2><p>查看学习进度与正确率</p></div><button class="dialog-close" data-close="statsDialog">×</button></div>
+<div id="statsContent"></div>
+<div class="actions"><button class="btn primary" data-close="statsDialog">完成</button></div>
+</div></div>
+
+
+<div class="overlay" id="wordbookDialog"><div class="dialog wordbook-dialog">
+<div class="dialog-header"><div><h2>单词本</h2><p id="wordbookSubtitle">查看当前词库和错词记录</p></div><button class="dialog-close" data-close="wordbookDialog">×</button></div>
+<div class="wordbook-tools">
+  <input id="wordbookSearch" type="search" placeholder="搜索英文或中文">
+  <select id="wordbookFilter">
+    <option value="all">全部单词</option>
+    <option value="wrong">只看错词</option>
+  </select>
+</div>
+<div id="wordbookSummary" class="wordbook-summary"></div>
+<div id="wordbookList" class="wordbook-list"></div>
+<div class="actions"><button class="btn primary" data-close="wordbookDialog">完成</button></div>
+</div></div>
+
+<div class="overlay" id="growthDialog"><div class="dialog growth-dialog">
+<div class="dialog-header"><div><h2>学习成长</h2><p>所有数据保存在当前电脑的浏览器中</p></div><button class="dialog-close" data-close="growthDialog">×</button></div>
+<div id="growthContent"></div>
+<div class="actions"><button class="btn primary" data-close="growthDialog">完成</button></div>
+</div></div>
+
+<div class="overlay" id="resultDialog"><div class="dialog result">
+<div class="result-symbol">✓</div>
+<h2 id="resultTitle">本局完成</h2>
+<p id="resultText"></p>
+<div class="actions center">
+  <button class="btn secondary" data-close="resultDialog">返回</button>
+  <button class="btn secondary" id="resetCycleBtn" hidden>重新练习本单元</button>
+  <button class="btn primary" id="againBtn">继续下一局</button>
+</div>
+</div></div>
+
+<div id="rewardStage" class="reward-stage" aria-live="polite">
+  <div id="rewardAura" class="reward-aura"></div>
+  <div id="rewardIcon" class="reward-icon">🌱</div>
+  <div id="reward" class="reward">NICE START!</div>
+  <div id="rewardTrail" class="reward-trail"></div>
+</div>
+<div id="mobileStudyBackdrop" class="mobile-study-backdrop"></div><div id="toast" class="toast"></div>
+<script src="assets/js/xlsx.full.min.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js").catch(() => {}));
+}
+</script>
+
+</body>
+</html>
